@@ -101,6 +101,7 @@ impl CLI {
     } else {
       println!("error: no argument given");
       println!("       use -h to list available arguments");
+      process::exit(1);
     }
   }
 }
