@@ -1,8 +1,11 @@
 mod cli;
 use crate::cli::*;
 
-fn list_arg() {
-  println!("list argument called");
+fn list_arg(cli: &CLI, active_cli_flags: &Vec<&Flag>) {
+  println!("list argument called, with following flags:");
+  for flag in active_cli_flags {
+    println!("  - {}", flag.description.to_string());
+  }
 }
 
 fn main() {
