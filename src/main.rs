@@ -8,6 +8,21 @@ static RFC_ARG: Argument = Argument { name: "rfc", description: "specify info on
 // flags
 static VERBOSE_FLAG: Flag = Flag { flags: &["v", "verbose"], description: "verbose mode" };
 
+fn print_rfc(rfc: &api::WildpointerRFC, minimal: bool) {
+  println!("RFC {}", rfc.id);
+  println!("Status: {}", rfc.status);
+  println!("Info Provided: {}", rfc.info_provided);
+  println!("Date: {}", rfc.date);
+  if !minimal {
+    if let Some(last_updated) = &rfc.last_updated {
+      println!("Last updated: {}", last_updated);
+    }
+    if let Some(body) = &rfc.body {
+      println!("Body: {}", body);
+    }
+  }
+}
+
 fn list_arg_cb(_cli: &CLI, active_cli_flags: &Vec<&Flag>, _arg: &Option<String>) {
   let mut verbose = false;
   for flag in active_cli_flags {
@@ -21,25 +36,20 @@ fn list_arg_cb(_cli: &CLI, active_cli_flags: &Vec<&Flag>, _arg: &Option<String>)
 
   let rfcs = api::all();
   for rfc in rfcs {
-    println!("RFC {}", rfc.id);
-    println!("Status: {}", rfc.status);
-    println!("Info Provided: {}", rfc.info_provided);
-    println!("Date: {}", rfc.date);
-    if verbose {
-      if let Some(last_updated) = rfc.last_updated {
-        println!("Last updated: {}", last_updated);
-      }
-      if let Some(body) = rfc.body {
-        println!("Body: {}", body);
-      }
-    }
+    print_rfc(&rfc, !verbose);
     println!();
   }
 }
 
 fn rfc_arg_cb(_cli: &CLI, _active_cli_flags: &Vec<&Flag>, arg: &Option<String>) {
   if let Some(rfc_id) = arg {
-
+    let rfcs = api::all();
+    for rfc in rfcs {
+      if rfc.id == *rfc_id {
+        print_rfc(&rfc, false);
+        break;
+      }
+    }
   } else {
     println!("error: must provide rfc id");
   } 

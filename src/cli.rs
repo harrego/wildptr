@@ -139,12 +139,13 @@ impl CLI {
         for cli_argument in self.arguments {
           if cli_argument.name == arg {
             selected_cli_argument = Some(cli_argument);
-            break
-          } else {
-            println!("error: unrecognized argument \"{}\"", arg);
-            println!("       use argument \"help\" to list available arguments");
-            process::exit(1);
+            break;
           }
+        }
+        if selected_cli_argument.is_none() {
+          println!("error: unrecognized argument \"{}\"", arg);
+          println!("       use argument \"help\" to list available arguments");
+          process::exit(1);
         }
       }
     }
