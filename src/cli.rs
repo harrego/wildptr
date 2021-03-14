@@ -2,24 +2,24 @@ use substring::Substring;
 use std::process;
 
 pub struct Argument {
-  pub name: String,
-  pub description: String,
+  pub name: &'static str,
+  pub description: &'static str,
 
   pub callback: fn(&CLI, &Vec<&Flag>),
 }
 
 pub struct Flag {
-  pub flags: Vec<String>,
-  pub description: String,
+  pub flags: &'static[&'static str],
+  pub description: &'static str,
 }
 
 pub struct CLI {
-  pub app_name: String,
-  pub app_version: String,
-  pub app_description: String,
+  pub app_name: &'static str,
+  pub app_version: &'static str,
+  pub app_description: &'static str,
 
-  pub arguments: Vec<Argument>,
-  pub flags: Vec<Flag>,
+  pub arguments: &'static[&'static Argument],
+  pub flags: &'static[&'static Flag],
 }
 impl CLI {
   pub fn print_help(&self) {
@@ -27,7 +27,7 @@ impl CLI {
     println!("{}", self.app_description);
 
     print!("\nusage: wildptr ");
-    for flag in &self.flags {
+    for flag in self.flags {
       print!("[");
       for (index, accepted_flag) in flag.flags.iter().enumerate() {
         if accepted_flag.chars().count() > 1 {
@@ -44,14 +44,14 @@ impl CLI {
     print!("\n");
 
     println!("\narguments:");
-    for arg in &self.arguments {
+    for arg in self.arguments {
       println!("    {} - {}", arg.name, arg.description);
     }
   }
 
   fn handle_flag(&self, flag: &String) -> Option<&Flag> {
-    for cli_flag in &self.flags {
-      for str_flag in &cli_flag.flags {
+    for cli_flag in self.flags {
+      for str_flag in cli_flag.flags {
         if str_flag == flag {
           return Some(cli_flag);
         }
@@ -113,7 +113,7 @@ impl CLI {
           &self.print_help();
           return;
         }
-        for cli_argument in &self.arguments {
+        for cli_argument in self.arguments {
           if cli_argument.name == arg {
             selected_cli_argument = Some(cli_argument);
             break
