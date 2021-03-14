@@ -84,7 +84,12 @@ impl CLI {
           // unsure if using .count() at the end of the substring
           // method is safe for unicode, are chars() byte or ascii
           // based?
-          self.handle_flag(&arg.substring(2, arg.chars().count()).to_string());
+          let flag_str = &arg.substring(2, arg.chars().count()).to_string();
+          if let Some(flag) = self.handle_flag(flag_str) {
+            active_cli_flags.push(flag);
+          } else {
+            self.invalid_flag(flag_str);
+          }
         } else if let Some(unhandled_arg) = dash_suffix {
           // single dash multi loaded flag
 
