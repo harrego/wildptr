@@ -2,10 +2,18 @@ use substring::Substring;
 use std::process;
 
 pub struct Argument {
+  // name of the argument, used in the command
   pub name: &'static str,
+  // description of the command in help
   pub description: &'static str,
+  // does the argument accept a second argument? (e.g. list <argument>)
+  pub arg: bool,
 
-  pub callback: fn(&CLI, &Vec<&Flag>),
+  // callback when argument is called
+  // cli: the cli struct parent
+  // active_flags: active flags when argument was called
+  // arg: optional argument given with argument, will never be given if `arg` is false
+  pub callback: fn(&CLI, &Vec<&Flag>, &Option<String>),
 }
 
 pub struct Flag {
@@ -45,7 +53,11 @@ impl CLI {
 
     println!("\narguments:");
     for arg in self.arguments {
-      println!("    {} - {}", arg.name, arg.description);
+      if arg.arg {
+        println!("    {} <arg> - {}", arg.name, arg.description);
+      } else {
+        println!("    {} - {}", arg.name, arg.description);
+      }
     }
   }
 
@@ -69,6 +81,7 @@ impl CLI {
   pub fn parse(&self) {
     let mut selected_cli_argument: Option<&Argument> = None;
     let mut active_cli_flags: Vec<&Flag> = Vec::new();
+    let mut second_argument: Option<String> = None;
 
     let args = std::env::args();
     for (index, arg) in args.enumerate() {
@@ -82,7 +95,7 @@ impl CLI {
           // double loaded long flag 
 
           // unsure if using .count() at the end of the substring
-          // method is safe for unicode, are chars() byte or ascii
+          // method is safe for unicode, are chars() ascii or unicode
           // based?
           let flag_str = &arg.substring(2, arg.chars().count()).to_string();
           if let Some(flag) = self.handle_flag(flag_str) {
@@ -111,8 +124,13 @@ impl CLI {
             }
           }
         }
-      } else if !selected_cli_argument.is_none() {
-        println!("error: more than one argument provided");
+      } else if let Some(selected_arg) = selected_cli_argument {
+        if selected_arg.arg && second_argument.is_none() {
+          second_argument = Some(arg);
+        } else {
+          println!("error: more than one argument provided");
+          process::exit(1);
+        }
       } else {
         if arg == "help" {
           &self.print_help();
@@ -131,7 +149,7 @@ impl CLI {
       }
     }
     if let Some(arg) = selected_cli_argument {
-      (arg.callback)(&self, &active_cli_flags);
+      (arg.callback)(&self, &active_cli_flags, &second_argument);
     } else {
       println!("error: no argument given");
       println!("       use \"help\" to list available arguments");
