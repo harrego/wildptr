@@ -3,16 +3,16 @@ mod api;
 use crate::cli::*;
 
 // arguments
-static list_arg: Argument = Argument { name: "list", description: "list all RFCs", arg: false, callback: list_arg_cb };
-static rfc_arg: Argument = Argument { name: "rfc", description: "specify info on a specific rfc", arg: true, callback: rfc_arg_cb };
+static LIST_ARG: Argument = Argument { name: "list", description: "list all RFCs", arg: false, callback: list_arg_cb };
+static RFC_ARG: Argument = Argument { name: "rfc", description: "specify info on a specific rfc", arg: true, callback: rfc_arg_cb };
 // flags
-static verbose_flag: Flag = Flag { flags: &["v", "verbose"], description: "verbose mode" };
+static VERBOSE_FLAG: Flag = Flag { flags: &["v", "verbose"], description: "verbose mode" };
 
-fn list_arg_cb(cli: &CLI, active_cli_flags: &Vec<&Flag>, arg: &Option<String>) {
+fn list_arg_cb(_cli: &CLI, active_cli_flags: &Vec<&Flag>, _arg: &Option<String>) {
   let mut verbose = false;
   for flag in active_cli_flags {
     // check if the ref is the verbose flag
-    if std::ptr::eq(*flag, &verbose_flag) {
+    if std::ptr::eq(*flag, &VERBOSE_FLAG) {
       verbose = true;
       // no other flags to look for, break the loop
       break;
@@ -37,7 +37,7 @@ fn list_arg_cb(cli: &CLI, active_cli_flags: &Vec<&Flag>, arg: &Option<String>) {
   }
 }
 
-fn rfc_arg_cb(cli: &CLI, active_cli_flags: &Vec<&Flag>, arg: &Option<String>) {
+fn rfc_arg_cb(_cli: &CLI, _active_cli_flags: &Vec<&Flag>, arg: &Option<String>) {
   if let Some(rfc_id) = arg {
 
   } else {
@@ -46,8 +46,8 @@ fn rfc_arg_cb(cli: &CLI, active_cli_flags: &Vec<&Flag>, arg: &Option<String>) {
 }
 
 fn main() {
-  static args: &'static[&'static Argument] = &[&list_arg, &rfc_arg];
-  static flags: &'static[&'static Flag] = &[&verbose_flag];
-  let cli = CLI { app_name: "wildptr", app_version: "1.0.0", app_description: "(c) harrego", arguments: &args, flags: &flags }; 
-  cli.parse();
+  static WILDPTR_ARGS: &'static[&'static Argument] = &[&LIST_ARG, &RFC_ARG];
+  static WILDPTR_FLAGS: &'static[&'static Flag] = &[&VERBOSE_FLAG];
+  static WILDPTR_CLI: CLI = CLI { app_name: "wildptr", app_version: "1.0.0", app_description: "(c) harrego", arguments: &WILDPTR_ARGS, flags: &WILDPTR_FLAGS }; 
+  WILDPTR_CLI.parse();
 }
